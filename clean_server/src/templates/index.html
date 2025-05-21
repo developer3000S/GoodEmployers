@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoodEmployers - GPS Tracking System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            padding-top: 56px;
+        }
+        .hero {
+            background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+            color: white;
+            padding: 4rem 0;
+            margin-bottom: 2rem;
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #0d6efd;
+        }
+        .card {
+            transition: transform 0.3s;
+            margin-bottom: 1.5rem;
+            border: none;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+        .api-section {
+            background-color: #f8f9fa;
+            padding: 3rem 0;
+        }
+        .map-preview {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">GoodEmployers</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#api">API</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/docs">Documentation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/web/map">Map View</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold">GPS Tracking Made Simple</h1>
+            <p class="lead">Track and visualize location data from multiple Android clients in real-time</p>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4">
+                <a href="/web/map" class="btn btn-light btn-lg px-4 gap-3">View Map</a>
+                <a href="/docs" class="btn btn-outline-light btn-lg px-4">API Docs</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="container py-5" id="features">
+        <h2 class="text-center mb-5">Key Features</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 p-4 text-center">
+                    <div class="feature-icon">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        📍
+                    </div>
+                    <h3>Real-time Tracking</h3>
+                    <p>Track GPS coordinates from multiple Android clients with 60-second frequency updates.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 p-4 text-center">
+                    <div class="feature-icon">
+                        <i class="bi bi-map"></i>
+                        🗺️
+                    </div>
+                    <h3>Route Visualization</h3>
+                    <p>View and analyze routes on an interactive map with filtering options.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 p-4 text-center">
+                    <div class="feature-icon">
+                        <i class="bi bi-shield-lock"></i>
+                        🔒
+                    </div>
+                    <h3>Secure Authentication</h3>
+                    <p>JWT-based authentication system ensures secure client identification.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 p-4 text-center">
+                    <div class="feature-icon">
+                        <i class="bi bi-database"></i>
+                        💾
+                    </div>
+                    <h3>Efficient Storage</h3>
+                    <p>SQLite database with optimized queries for fast data retrieval.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 p-4 text-center">
+                    <div class="feature-icon">
+                        <i class="bi bi-journal-text"></i>
+                        📝
+                    </div>
+                    <h3>Comprehensive Logging</h3>
+                    <p>Detailed logging of client actions for auditing and troubleshooting.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 p-4 text-center">
+                    <div class="feature-icon">
+                        <i class="bi bi-arrow-repeat"></i>
+                        🔄
+                    </div>
+                    <h3>Scalable Architecture</h3>
+                    <p>Designed to handle multiple simultaneous clients with efficient resource utilization.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Preview Section -->
+    <section class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h2>Interactive Route Visualization</h2>
+                <p class="lead">View and analyze routes from all connected clients on an interactive map.</p>
+                <p>The map interface allows you to:</p>
+                <ul>
+                    <li>Filter routes by client</li>
+                    <li>Set custom time ranges</li>
+                    <li>View detailed information about each location point</li>
+                    <li>Track movement patterns over time</li>
+                </ul>
+                <a href="/web/map" class="btn btn-primary mt-3">Open Map View</a>
+            </div>
+            <div class="col-lg-6">
+                <div class="map-preview">
+                    <img src="https://i.imgur.com/JZ3QTzV.png" alt="Map Preview" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- API Section -->
+    <section class="api-section" id="api">
+        <div class="container">
+            <h2 class="text-center mb-5">API Documentation</h2>
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h3 class="card-title">Authentication</h3>
+                            <ul class="list-unstyled">
+                                <li><code>POST /api/auth/register</code> - Register new client</li>
+                                <li><code>POST /api/auth/login</code> - Authenticate client</li>
+                                <li><code>POST /api/auth/refresh</code> - Refresh authentication token</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h3 class="card-title">Location Data</h3>
+                            <ul class="list-unstyled">
+                                <li><code>POST /api/locations</code> - Send GPS coordinates</li>
+                                <li><code>POST /api/locations/batch</code> - Send multiple coordinates</li>
+                                <li><code>GET /api/locations/{client_id}</code> - Get client locations</li>
+                                <li><code>GET /api/locations/{client_id}/latest</code> - Get latest location</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h3 class="card-title">Client Management</h3>
+                            <ul class="list-unstyled">
+                                <li><code>GET /api/clients</code> - List all clients</li>
+                                <li><code>GET /api/clients/{client_id}</code> - Get client details</li>
+                                <li><code>PUT /api/clients/{client_id}</code> - Update client</li>
+                                <li><code>DELETE /api/clients/{client_id}</code> - Deactivate client</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h3 class="card-title">Visualization</h3>
+                            <ul class="list-unstyled">
+                                <li><code>GET /api/routes/{client_id}</code> - Get route data</li>
+                                <li><code>GET /web/map</code> - Web map interface</li>
+                                <li><code>GET /api/logs/{client_id}</code> - Get client logs</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <a href="/docs" class="btn btn-primary">View Full API Documentation</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h3>GoodEmployers</h3>
+                    <p>A client-server application for GPS tracking and route visualization.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#api">API</a></li>
+                        <li><a href="/docs">Documentation</a></li>
+                        <li><a href="/web/map">Map View</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Resources</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/docs">API Reference</a></li>
+                        <li><a href="#">Android Client</a></li>
+                        <li><a href="#">GitHub Repository</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p>&copy; 2025 GoodEmployers. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

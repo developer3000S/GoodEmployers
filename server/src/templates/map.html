@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoodEmployers - Route Visualization</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        .control-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            max-width: 300px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .client-info {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <div class="control-panel">
+        <h3>Route Visualization</h3>
+        
+        <div class="form-group">
+            <label for="client-select">Select Client:</label>
+            <select id="client-select">
+                <option value="">Loading clients...</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="start-date">Start Date:</label>
+            <input type="datetime-local" id="start-date">
+        </div>
+        
+        <div class="form-group">
+            <label for="end-date">End Date:</label>
+            <input type="datetime-local" id="end-date">
+        </div>
+        
+        <button id="load-route">Load Route</button>
+        
+        <div class="client-info" id="client-info">
+            <p>Select a client to view route information.</p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize map
+        const map = L.map('map').setView([0, 0], 2);
+        
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Variables to store current route and markers
+        let currentRoute = null;
+        let startMarker = null;
+        let endMarker = null;
+        
+        // DOM elements
+        const clientSelect = document.getElementById('client-select');
+        const startDateInput = document.getElementById('start-date');
+        const endDateInput = document.getElementById('end-date');
+        const loadRouteButton = document.getElementById('load-route');
+        const clientInfo = document.getElementById('client-info');
+        
+        // Set default date range (last 24 hours)
+        const now = new Date();
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        
+        startDateInput.value = formatDateForInput(yesterday);
+        endDateInput.value = formatDateForInput(now);
+        
+        // Format date for datetime-local input
+        function formatDateForInput(date) {
+            return date.toISOString().slice(0, 16);
+        }
+        
+        // Load clients on page load
+        window.addEventListener('DOMContentLoaded', loadClients);
+        
+        // Add event listener to load route button
+        loadRouteButton.addEventListener('click', loadRoute);
+        
+        // Load clients from API
+        async function loadClients() {
+            try {
+                const response = await fetch('/api/clients');
+                if (!response.ok) {
+                    throw new Error('Failed to load clients');
+                }
+                
+                const data = await response.json();
+                
+                // Clear select options
+                clientSelect.innerHTML = '';
+                
+                if (data.clients.length === 0) {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No clients available';
+                    clientSelect.appendChild(option);
+                } else {
+                    // Add clients to select
+                    data.clients.forEach(client => {
+                        const option = document.createElement('option');
+                        option.value = client.id;
+                        option.textContent = client.name;
+                        clientSelect.appendChild(option);
+                    });
+                    
+                    // Add change event listener to client select
+                    clientSelect.addEventListener('change', loadClientInfo);
+                    
+                    // Load info for first client
+                    if (data.clients.length > 0) {
+                        loadClientInfo();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading clients:', error);
+                clientSelect.innerHTML = '<option value="">Error loading clients</option>';
+            }
+        }
+        
+        // Load client info
+        async function loadClientInfo() {
+            const clientId = clientSelect.value;
+            
+            if (!clientId) {
+                clientInfo.innerHTML = '<p>Select a client to view route information.</p>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/clients/${clientId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to load client info');
+                }
+                
+                const client = await response.json();
+                
+                clientInfo.innerHTML = `
+                    <h4>${client.name}</h4>
+                    <p><strong>Device:</strong> ${client.device_info.model}</p>
+                    <p><strong>OS:</strong> ${client.device_info.os_version}</p>
+                    <p><strong>App Version:</strong> ${client.device_info.app_version}</p>
+                    <p><strong>Last Active:</strong> ${new Date(client.last_active).toLocaleString()}</p>
+                    <p><strong>Location Count:</strong> ${client.location_count}</p>
+                `;
+            } catch (error) {
+                console.error('Error loading client info:', error);
+                clientInfo.innerHTML = '<p>Error loading client information.</p>';
+            }
+        }
+        
+        // Load route
+        async function loadRoute() {
+            const clientId = clientSelect.value;
+            
+            if (!clientId) {
+                alert('Please select a client');
+                return;
+            }
+            
+            const startDate = startDateInput.value;
+            const endDate = endDateInput.value;
+            
+            if (!startDate || !endDate) {
+                alert('Please select start and end dates');
+                return;
+            }
+            
+            try {
+                // Clear previous route
+                if (currentRoute) {
+                    map.removeLayer(currentRoute);
+                }
+                
+                if (startMarker) {
+                    map.removeLayer(startMarker);
+                }
+                
+                if (endMarker) {
+                    map.removeLayer(endMarker);
+                }
+                
+                // Fetch route data
+                const response = await fetch(`/api/routes/${clientId}?start_time=${startDate}&end_time=${endDate}&format=geojson`);
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        alert('No locations found for this client in the specified time range');
+                    } else {
+                        throw new Error('Failed to load route');
+                    }
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (data.features.length === 0) {
+                    alert('No route data available for the selected time range');
+                    return;
+                }
+                
+                // Add route to map
+                currentRoute = L.geoJSON(data).addTo(map);
+                
+                // Fit map to route bounds
+                map.fitBounds(currentRoute.getBounds());
+                
+                // Add start and end markers
+                const coordinates = data.features[0].geometry.coordinates;
+                
+                if (coordinates.length > 0) {
+                    // Start marker (first point)
+                    const startPoint = coordinates[0];
+                    startMarker = L.marker([startPoint[1], startPoint[0]], {
+                        title: 'Start',
+                        icon: L.icon({
+                            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+                            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+                            iconSize: [25, 41],
+                            iconAnchor: [12, 41],
+                            popupAnchor: [1, -34],
+                            shadowSize: [41, 41]
+                        })
+                    }).addTo(map);
+                    
+                    startMarker.bindPopup(`<strong>Start:</strong> ${new Date(data.features[0].properties.start_time).toLocaleString()}`);
+                    
+                    // End marker (last point)
+                    const endPoint = coordinates[coordinates.length - 1];
+                    endMarker = L.marker([endPoint[1], endPoint[0]], {
+                        title: 'End',
+                        icon: L.icon({
+                            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+                            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+                            iconSize: [25, 41],
+                            iconAnchor: [12, 41],
+                            popupAnchor: [1, -34],
+                            shadowSize: [41, 41]
+                        })
+                    }).addTo(map);
+                    
+                    endMarker.bindPopup(`<strong>End:</strong> ${new Date(data.features[0].properties.end_time).toLocaleString()}`);
+                }
+                
+            } catch (error) {
+                console.error('Error loading route:', error);
+                alert('Error loading route data. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>
